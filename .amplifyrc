@@ -1,0 +1,14 @@
+{
+    "providers": {
+        "awscloudformation": {
+            "AuthRoleName": "blackboxnative-20190209150600-authRole",
+            "UnauthRoleArn": "arn:aws:iam::324961279258:role/blackboxnative-20190209150600-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::324961279258:role/blackboxnative-20190209150600-authRole",
+            "Region": "us-east-1",
+            "DeploymentBucketName": "blackboxnative-20190209150600-deployment",
+            "UnauthRoleName": "blackboxnative-20190209150600-unauthRole",
+            "StackName": "blackboxnative-20190209150600",
+            "StackId": "arn:aws:cloudformation:us-east-1:324961279258:stack/blackboxnative-20190209150600/1efd49a0-2ca6-11e9-8158-0e0c84e5bae6"
+        }
+    }
+}

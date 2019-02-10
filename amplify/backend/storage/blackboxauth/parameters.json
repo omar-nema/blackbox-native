@@ -1,0 +1,9 @@
+{
+    "bucketName": "blackboxnativeedc5f2c09b3d4f4cb0a7ec2c8c484825",
+    "authPolicyName": "s3_amplify_f1426273",
+    "unauthPolicyName": "s3_amplify_f1426273",
+    "authRoleName": "blackboxnative-20190209150600-authRole",
+    "unauthRoleName": "blackboxnative-20190209150600-unauthRole",
+    "authPermissions": "rw",
+    "unauthPermissions": "rw"
+}
