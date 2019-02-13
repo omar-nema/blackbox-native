@@ -48,7 +48,7 @@ class AudioButtons extends React.Component {
   render(){
     return (
       <View>
-        <ButtonAudio onTouch={this.props.audioPlayToggle} buttonStyle={this.getPauseButtonText()} audioState={this.props.audioState}>
+        <ButtonAudio animate={true} onTouch={this.props.audioPlayToggle} buttonStyle={this.getPauseButtonText()} audioState={this.props.audioState}>
           {this.getPauseButtonText()}
         </ButtonAudio>
         <ButtonAudio onTouch={this.getShareButtonFunction()} buttonStyle={this.getShareButtonText()} audioState={this.props.audioState}>

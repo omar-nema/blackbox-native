@@ -1,8 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback} from 'react-native';
+import { Animated, View, Text, StyleSheet, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback} from 'react-native';
 import { colors }  from '../styleComponents/Variables';
 
 export class ButtonAudio extends React.Component {
+
+  constructor(props){
+    super(props);
+    this.state = {
+      animateButtonScale: new Animated.Value(1.15),
+      disabled: false,
+    }
+  }
 
   getButtonStylesGeneral = () => {
     if (this.props.buttonStyle == 'Record' || this.props.buttonStyle == 'Listen'){
@@ -17,26 +25,39 @@ export class ButtonAudio extends React.Component {
     }
   }
 
+
   getButtonStylesState = () => {
     if (this.props.audioState == 'init'){
         if (this.props.buttonStyle == 'Record' || this.props.buttonStyle == 'Listen'){
-          return styles.buttonHighlight;
+          this.state.disabled = false;
+          return styles.buttonHighlight
         } else {
+          this.state.disabled = true;
           return styles.buttonDisabled;
         }
     } else if (this.props.audioState == 'playing'){
-      return styles.buttonEnabled;
+      if (this.props.animate){
+        Animated.timing(
+          this.state.animateButtonScale, {toValue: 1.0, duration: 200}
+        ).start();
+        return {transform: [{scaleX: this.state.animateButtonScale}, {scaleY: this.state.animateButtonScale}]};
+      } else {
+        this.state.disabled = false;
+        return styles.buttonEnabled;
+      }
+
     }
   }
+  //should i be setting the styles as states instead
   render() {
     return (
-      <View style={this.getButtonStylesState()}>
-        <TouchableOpacity style={this.getButtonStylesGeneral()[0]} onPress={this.props.onTouch}>
+      <Animated.View style={this.getButtonStylesState()}>
+        <TouchableOpacity disabled={this.state.disabled} style={this.getButtonStylesGeneral()[0]} onPress={this.props.onTouch}>
           <Text style = {this.getButtonStylesGeneral()[1]}>
             {this.props.children}
           </Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
     );
   }
 }
@@ -58,6 +79,12 @@ const styles = StyleSheet.create({
     opacity: 1,
     backgroundColor: colors.darkBackground,
   },
+  // test: {
+  //   transform: [
+  //     { scaleX: this.props.animateButtonScale },
+  //     { scaleY: 1.15 },
+  //   ],
+  // },
   buttonText: {
     fontSize: 24,
     textAlign: 'center',
