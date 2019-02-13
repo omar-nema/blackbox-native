@@ -142,6 +142,59 @@
 					"unauthPermissions": "rw"
 				}
 			}
+		},
+		"storageuseraccessholder": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "https://s3.amazonaws.com/blackboxnative-20190209150600-deployment/amplify-cfn-templates/storage/useraccessholder-cloudformation-template.json",
+				"Parameters": {
+					"tableName": "useraccessholder",
+					"partitionKeyName": "id",
+					"partitionKeyType": "N",
+					"sortKeyName": "deviceId",
+					"sortKeyType": "S"
+				}
+			}
+		},
+		"functionuseraccessholderCRUDfunction": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "https://s3.amazonaws.com/blackboxnative-20190209150600-deployment/amplify-cfn-templates/function/useraccessholderCRUDfunction-cloudformation-template.json",
+				"Parameters": {
+					"storageuseraccessholderName": {
+						"Fn::GetAtt": [
+							"storageuseraccessholder",
+							"Outputs.Name"
+						]
+					},
+					"storageuseraccessholderArn": {
+						"Fn::GetAtt": [
+							"storageuseraccessholder",
+							"Outputs.Arn"
+						]
+					}
+				}
+			}
+		},
+		"apiuseraccessholderCRUD": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "https://s3.amazonaws.com/blackboxnative-20190209150600-deployment/amplify-cfn-templates/api/useraccessholderCRUD-cloudformation-template.json",
+				"Parameters": {
+					"functionuseraccessholderCRUDfunctionName": {
+						"Fn::GetAtt": [
+							"functionuseraccessholderCRUDfunction",
+							"Outputs.Name"
+						]
+					},
+					"functionuseraccessholderCRUDfunctionArn": {
+						"Fn::GetAtt": [
+							"functionuseraccessholderCRUDfunction",
+							"Outputs.Arn"
+						]
+					}
+				}
+			}
 		}
 	},
 	"Outputs": {

@@ -1,4 +1,76 @@
 
+await Audio.setAudioModeAsync({
+  allowsRecordingIOS: false,
+  interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
+  playsInSilentModeIOS: true,
+  playsInSilentLockedModeIOS: true,
+  shouldDuckAndroid: true,
+  interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+  playThroughEarpieceAndroid: true,
+});
+
+//old states
+
+// isPlaying: false,
+// isRecording: false,
+// muted: false,
+// recordingDuration: null,
+// shouldPlay: false,
+// shouldCorrectPitch: true,
+// volume: 1.0,
+// rate: 1.0,
+
+package @@
+    "react-native": "https://github.com/expo/react-native/archive/sdk-31.0.0.tar.gz",
+
+// this.recordingSettings = {
+//   android: {
+//     extension: '.m4a',
+//        outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_MPEG_4,
+//        audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
+//        sampleRate: 44100,
+//        numberOfChannels: 2,
+//        bitRate: 128000,
+//   },
+//   ios : {
+//     extension: '.m4a',
+//         outputFormat: Audio.RECORDING_OPTION_IOS_OUTPUT_FORMAT_APPLELOSSLESS,
+//         audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_MIN,
+//         sampleRate: 44100,
+//         numberOfChannels: 2,
+//         bitRate: 128000,
+//         linearPCMBitDepth: 16,
+//         linearPCMIsBigEndian: false,
+//         linearPCMIsFloat: false,
+//   }
+
+
+// else {
+//   this.setState({
+//      audioState: 'init'
+//      , soundDuration: null
+//      , soundPosition: null
+//      , isPlaybackAllowed: false
+//    });
+// }
+
+
+//    [19:09:34]   "didJustFinish": false,
+// [19:09:34]   "durationMillis": 230112,
+// [19:09:34]   "hasJustBeenInterrupted": false,
+// [19:09:34]   "isBuffering": false,
+// [19:09:34]   "isLoaded": true,
+// [19:09:34]   "isLooping": false,
+// [19:09:34]   "isMuted": false,
+// [19:09:34]   "isPlaying": true,
+// [19:09:34]   "playableDurationMillis": 230112,
+// [19:09:34]   "positionMillis": 7001,
+// [19:09:34]   "progressUpdateIntervalMillis": 500,
+// [19:09:34]   "rate": 1,
+// [19:09:34]   "shouldCorrectPitch": false,
+// [19:09:34]   "shouldPlay": true,
+
+
   //
   // playToggle = () =>  {
   //   if (this.state.audioState == 'init'){

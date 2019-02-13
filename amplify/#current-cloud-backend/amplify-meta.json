@@ -19,7 +19,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/blackboxnative-20190209150600-deployment/amplify-cfn-templates/auth/cognito5151165f-cloudformation-template.yml",
 				"logicalId": "authcognito5151165f"
 			},
-			"lastPushTimeStamp": "2019-02-09T20:12:14.857Z",
+			"lastPushTimeStamp": "2019-02-13T12:37:18.880Z",
 			"output": {
 				"AppClientSecret": "i63s7ggddhprud2svcfepdifs88u3a9s2gvrc2chldjsh17m5hd",
 				"UserPoolId": "us-east-1_l00EaP0yx",
@@ -40,12 +40,88 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/blackboxnative-20190209150600-deployment/amplify-cfn-templates/storage/s3-cloudformation-template.json",
 				"logicalId": "storageblackboxauth"
 			},
-			"lastPushTimeStamp": "2019-02-09T20:12:14.857Z",
+			"lastPushTimeStamp": "2019-02-13T12:37:18.889Z",
 			"output": {
 				"BucketName": "blackboxnativeedc5f2c09b3d4f4cb0a7ec2c8c484825",
 				"Region": "us-east-1"
 			},
 			"lastPushDirHash": "QtAt3BQPj3xKuUf4C9C7MNkGU0c="
+		},
+		"useraccessholder": {
+			"service": "DynamoDB",
+			"providerPlugin": "awscloudformation",
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/blackboxnative-20190209150600-deployment/amplify-cfn-templates/storage/useraccessholder-cloudformation-template.json",
+				"logicalId": "storageuseraccessholder"
+			},
+			"lastPushTimeStamp": "2019-02-13T12:37:18.891Z",
+			"output": {
+				"PartitionKeyName": "id",
+				"SortKeyName": "deviceId",
+				"SortKeyType": "S",
+				"Region": "us-east-1",
+				"Arn": "arn:aws:dynamodb:us-east-1:324961279258:table/useraccessholder",
+				"PartitionKeyType": "N",
+				"Name": "useraccessholder"
+			},
+			"lastPushDirHash": "jEv5PLCSY4FGJxqeaYdt09492nc="
+		}
+	},
+	"function": {
+		"useraccessholderCRUDfunction": {
+			"service": "Lambda",
+			"providerPlugin": "awscloudformation",
+			"build": true,
+			"dependsOn": [
+				{
+					"category": "storage",
+					"resourceName": "useraccessholder",
+					"attributes": [
+						"Name",
+						"Arn"
+					]
+				}
+			],
+			"lastBuildTimeStamp": "2019-02-13T12:34:10.037Z",
+			"lastPackageTimeStamp": "2019-02-13T12:34:13.731Z",
+			"distZipFilename": "useraccessholderCRUDfunction-1550061250-latest-build.zip",
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/blackboxnative-20190209150600-deployment/amplify-cfn-templates/function/useraccessholderCRUDfunction-cloudformation-template.json",
+				"logicalId": "functionuseraccessholderCRUDfunction"
+			},
+			"lastPushTimeStamp": "2019-02-13T12:37:18.891Z",
+			"output": {
+				"Region": "us-east-1",
+				"Arn": "arn:aws:lambda:us-east-1:324961279258:function:useraccessholderCRUDfunction",
+				"Name": "useraccessholderCRUDfunction"
+			},
+			"lastPushDirHash": "fByxSCmInU5pIGES1A6aaG9FKVI="
+		}
+	},
+	"api": {
+		"useraccessholderCRUD": {
+			"service": "API Gateway",
+			"providerPlugin": "awscloudformation",
+			"dependsOn": [
+				{
+					"category": "function",
+					"resourceName": "useraccessholderCRUDfunction",
+					"attributes": [
+						"Name",
+						"Arn"
+					]
+				}
+			],
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/blackboxnative-20190209150600-deployment/amplify-cfn-templates/api/useraccessholderCRUD-cloudformation-template.json",
+				"logicalId": "apiuseraccessholderCRUD"
+			},
+			"lastPushTimeStamp": "2019-02-13T12:37:18.891Z",
+			"output": {
+				"ApiName": "useraccessholderCRUD",
+				"RootUrl": "https://quhxjunozb.execute-api.us-east-1.amazonaws.com/Prod"
+			},
+			"lastPushDirHash": "DbmXvenbHsUWHItsKbb79gHbmt4="
 		}
 	}
 }

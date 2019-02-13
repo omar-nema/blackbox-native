@@ -59,10 +59,23 @@ export default class App extends React.Component {
    LayoutAnimation.easeInEaseOut();
  }
 
+ testDynamo = async () => {
+   
+   // let testobj = {
+   //   body: {
+   //     id: uid,
+   //     deviceId: deviceId,
+   //     fileId: randFileKey
+   //   }
+   // }
+   // await API.put("useraccessholderCRUD", path, testobj)
+ }
+
  //NAVIGATION FUNCTIONS
   navPageRecord = () => {
     this.animatePageTransition();
     this.setState({pageState: 'record', audioState: 'init'});
+    this.testDynamo();
   }
   navPageConfirmation = () =>  {
     this.recordToggle();
@@ -133,6 +146,36 @@ export default class App extends React.Component {
       });
     }
   }
+
+
+  logUserAccess = async (randFileKey, deviceId) => {
+    let uid = await (new Date).getTime()+Math.round(10000000*Math.random());
+    try {
+      const path = "/items";
+      let testobj = {
+        body: {
+          id: uid,
+          deviceId: deviceId,
+          fileId: randFileKey
+        }
+      }
+      await API.put("useraccessholderCRUD", path, testobj)
+    }
+    catch (error){
+      console.log('error ! logging to access db!', error)
+    }
+  }
+  getRandomFile = async () => {
+    fileList = await Storage.list('uploaded/');
+    randFileIndex = await Math.round(10*Math.random(fileList.length-1));
+    randFilePath = await fileList[randFileIndex].key;
+    randFileKey = randFilePath.substr(randFilePath.lastIndexOf('/') + 1);
+    return Storage.get(randFileKey);
+  }
+  //request random file that i have not yet ACCESSED
+  //fileList where (key not in (select distinct key from userAccessDb where deviceID = device id))
+  //
+
   listenToggle = async () => {
       if (this.soundObject){
         if (this.state.audioState == 'playing'){
@@ -144,48 +187,18 @@ export default class App extends React.Component {
         this.setState({
           isLoading: true,
         });
-        // fileList = await Storage.list('uploaded/');
-        // randFileIndex = await Math.round(10*Math.random(fileList.length-1));
-        // randFileKey = await fileList[randFileIndex].key;
-        //const newSoundURL = await Storage.get(randFileKey);
-        const newSoundURL = await Storage.get('uploaded/torotester.mp3');
 
-        // const newSoundURL = await Storage.get('uploaded/https://s3.amazonaws.com/blackboxnativeedc5f2c09b3d4f4cb0a7ec2c8c484825/public/uploaded/recording-F362AA0F-10F4-4D84-A201-E8C42B240894.caf')
-        //const soundObject = new Audio.Sound();
+        //REQUEST AND PLAY RANDOM FILE
+        // const newSoundURL = await Storage.get('uploaded/torotester.mp3');
+        // this.getRandomFile();
+        // const soundObject = new Audio.Sound();
+        // this.soundObject = soundObject;
+        // soundObject.setOnPlaybackStatusUpdate(this.updateTimer);
+        // await soundObject.loadAsync({uri: newSoundURL}, this.updateTimer)
+        // await soundObject.playAsync();
 
-        //load the sound first
-        try {
-          const soundObject = new Audio.Sound();
-          this.soundObject = soundObject;
-          soundObject.setOnPlaybackStatusUpdate(this.updateTimer);
-          await soundObject.loadAsync({uri: newSoundURL}, this.updateTimer)
-          await soundObject.playAsync();
-        }
-        catch (error){
-          console.log('error ! loading sound!')
-        }
-
-        // try {
-        //   const path = "/items";
-        //   let testobj = {
-        //     body: {
-        //       id: 3,
-        //       deviceId: 'whatever',
-        //       fileId: 'WOWIEEEPOR'
-        //     }
-        //   }
-        //   // console.log(testobj);
-        //   // const apiResponse = await API.get("dbconnect", 'items/object/1');
-        //   // console.log('get STATUS ',apiResponse)
-        //   //
-        //   const apiResponse = await API.put("dbconnect", path, testobj);
-        //   console.log('PUT STATUS ',apiResponse)
-        // }
-        // catch (error){
-        //   console.log('error logging')
-        // }
-
-
+        //LOG THAT FILE WAS ACCESSED
+        // await this.logUserAccess(randFileKey, 'bleeergh')
         this.setState({isLoading: false})
       }
     }

@@ -7,7 +7,21 @@ const awsmobile = {
     "aws_user_pools_id": "us-east-1_l00EaP0yx",
     "aws_user_pools_web_client_id": "3r9fjtfsrm5grndf22q0gketrj",
     "aws_user_files_s3_bucket": "blackboxnativeedc5f2c09b3d4f4cb0a7ec2c8c484825",
-    "aws_user_files_s3_bucket_region": "us-east-1"
+    "aws_user_files_s3_bucket_region": "us-east-1",
+    "aws_dynamodb_all_tables_region": "us-east-1",
+    "aws_dynamodb_table_schemas": [
+        {
+            "tableName": "useraccessholder",
+            "region": "us-east-1"
+        }
+    ],
+    "aws_cloud_logic_custom": [
+        {
+            "name": "useraccessholderCRUD",
+            "endpoint": "https://quhxjunozb.execute-api.us-east-1.amazonaws.com/Prod",
+            "region": "us-east-1"
+        }
+    ]
 };
 
 

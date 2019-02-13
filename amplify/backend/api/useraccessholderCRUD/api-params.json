@@ -1,0 +1,34 @@
+{
+    "paths": [
+        {
+            "name": "/items",
+            "lambdaFunction": "useraccessholderCRUDfunction",
+            "privacy": {
+                "open": true
+            }
+        }
+    ],
+    "resourceName": "useraccessholderCRUD",
+    "apiName": "blackboxnative564d63af",
+    "functionArns": [
+        {
+            "lambdaFunction": "useraccessholderCRUDfunction"
+        }
+    ],
+    "privacy": {
+        "auth": 0,
+        "unauth": 0,
+        "authRoleName": "blackboxnative-20190209150600-authRole",
+        "unAuthRoleName": "blackboxnative-20190209150600-unauthRole"
+    },
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "useraccessholderCRUDfunction",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        }
+    ]
+}

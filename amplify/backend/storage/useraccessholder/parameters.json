@@ -1,0 +1,7 @@
+{
+    "tableName": "useraccessholder",
+    "partitionKeyName": "id",
+    "partitionKeyType": "N",
+    "sortKeyName": "deviceId",
+    "sortKeyType": "S"
+}
