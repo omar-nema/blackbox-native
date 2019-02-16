@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View} from 'react-native';
-import { colors }  from '../styleComponents/Variables';
+import { colors }  from '../components/Variables';
 
 class AudioWidget extends React.Component {
     getAudioStateText = () => {
@@ -16,8 +16,8 @@ class AudioWidget extends React.Component {
     }
 
     getAudioTime = () => {
-      if (this.props.soundDuration){
-        return Math.round(this.props.soundDuration/1000) + ' seconds';
+      if (this.props.soundPosition){
+        return Math.round(this.props.soundPosition/1000) + ' seconds';
       } else {
         return '0 seconds'
       }

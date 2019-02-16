@@ -1,10 +1,26 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback } from 'react-native';
-import { AppText }  from '../styleComponents/AppText';
-import { colors }  from '../styleComponents/Variables';
-import { Dialog }  from '../styleComponents/Dialog';
+import {Haptic} from 'expo'
+import { AppText }  from '../components/AppText';
+import { colors }  from '../components/Variables';
+import { Dialog }  from '../components/Dialog';
 
 class ShareConfirmation extends React.Component {
+
+  onTouchHandlerHome = () => {
+    if (this.props.navPageHome){
+      Haptic.impact(Haptic.ImpactFeedbackStyle.Medium);
+      this.props.navPageHome();
+    }
+  }
+  onTouchHandlerListen = async () => {
+    if (this.props.navPageListen){
+      //await Haptic.impact(Haptic.ImpactFeedbackStyle.Medium);
+      //await Haptic.notification(Haptic.NotificationFeedbackType.Light)
+      this.props.navPageListen();
+    }
+  }
+
   render() {
     return (
       <View>
@@ -12,12 +28,12 @@ class ShareConfirmation extends React.Component {
         Confirm that you would like to share your recording. {"\n"}{"\n"}In exchange, you will receive an anonymous recording.
         </Dialog>
         <View style={styles.buttonHolder}>
-          <TouchableOpacity onPress={this.props.navPageHome} style={styles.buttonCancel}>
+          <TouchableOpacity onPress={this.onTouchHandlerHome} style={styles.buttonCancel}>
             <Text style={[styles.buttonText,styles.textCancel]}>
               Cancel
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={this.props.navPageListen} style={styles.buttonShare}>
+          <TouchableOpacity onPress={this.onTouchHandlerListen} style={styles.buttonShare}>
             <Text style={[styles.buttonText,styles.textShare]}>
               Share
             </Text>

@@ -1,16 +1,18 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback } from 'react-native';
-import { Dialog }  from '../styleComponents/Dialog';
-import { AppText }  from '../styleComponents/AppText';
+import { Dialog }  from '../components/Dialog';
+import { AppText }  from '../components/AppText';
 
 class HomeScreen extends React.Component {
+
+
   render() {
     return (
       <View>
         <Dialog>
         'Blackbox' is another way of talking. Send a voice recording, and receive one back. Each recording is unique, and will only be played once.
         </Dialog>
-        <ButtonStartExperience pressFunction={this.props.onTouch}/>
+        <ButtonStartExperience onTouch={this.props.onTouch}/>
       </View>
     );
   }
@@ -19,7 +21,7 @@ class HomeScreen extends React.Component {
 class ButtonStartExperience extends React.Component {
   render() {
     return (
-      <TouchableOpacity underlayColor="white" onPress={this.props.pressFunction}>
+      <TouchableOpacity underlayColor="white" onPress={this.props.onTouch}>
         <View style={styles.dialogActions}>
           <AppText>
             <Text style={styles.buttonBegin}>Start an exchange</Text>

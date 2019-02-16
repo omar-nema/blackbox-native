@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import { colors }  from '../styleComponents/Variables';
-import { AppText }  from '../styleComponents/AppText';
+import { colors }  from '../components/Variables';
+import { AppText }  from '../components/AppText';
 
 class Header extends React.Component {
 
@@ -17,7 +17,7 @@ class Header extends React.Component {
       return [styles.disabled, styles.disabled, styles.disabled];
     }
   };
-  //
+
   renderBackButton = () => {
     let backText = '< back';
     if (this.props.pageState != 'listen'){

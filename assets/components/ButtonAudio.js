@@ -1,6 +1,6 @@
 import React from 'react';
-import { Animated, View, Text, StyleSheet, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback} from 'react-native';
-import { colors }  from '../styleComponents/Variables';
+import {Animated, View, Text, StyleSheet, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback} from 'react-native';
+import { colors }  from '../components/Variables';
 
 export class ButtonAudio extends React.Component {
 
@@ -24,7 +24,6 @@ export class ButtonAudio extends React.Component {
       return [[styles.buttonCore, styles.buttonRed], [styles.buttonText, styles.buttonRedText]];
     }
   }
-
 
   getButtonStylesState = () => {
     if (this.props.audioState == 'init'){

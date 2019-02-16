@@ -1,6 +1,6 @@
 import React from 'react';
 import { Animated, StyleSheet, NativeModules, LayoutAnimation, Text, View, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback, ActivityIndicator, AppRegistry} from 'react-native';
-import Expo, { Asset, Audio, FileSystem, Font, Permissions } from 'expo';
+import Expo, {Haptic, Constants,  Asset, Audio, FileSystem, Font, Permissions } from 'expo';
 import Header from './assets/js/Header';
 // import DeviceInfo from 'react-native-device-info';
 import HomeScreen from './assets/js/HomeScreen';
@@ -8,16 +8,11 @@ import AudioButtons from './assets/js/AudioButtons';
 import ShareConfirmation from './assets/js/ShareConfirmation';
 import AudioWidget from './assets/js/AudioWidget';
 import aws_exports from './aws-exports';
-
-
-import Amplify, { Storage,  API, Auth}  from 'aws-amplify';
+import Amplify, { Storage, Auth}  from 'aws-amplify';
 import awsmobile from './aws-exports';
+
 Amplify.configure(awsmobile);
-
-import AWS from "aws-sdk";
-AWS.config.update({ region: "us-east-1" });
-
-import DynamoDB from 'aws-sdk/clients/dynamodb';
+import { api } from "./assets/services/dbServices.js";
 
 const { UIManager } = NativeModules;
 UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -65,44 +60,6 @@ export default class App extends React.Component {
    LayoutAnimation.easeInEaseOut();
  }
 
- getAccessedFiles = async (deviceIdInput) => {
-
-   const test = {":currDevice" : deviceIdInput};
-
-   Auth.currentCredentials()
-  .then(credentials => {
-    const db= new DynamoDB.DocumentClient({
-      credentials: Auth.essentialCredentials(credentials)
-    });
-    db.scan(
-      {
-        TableName: 'useraccessholder',
-        FilterExpression: "deviceId = :currDevice",
-        ExpressionAttributeValues: test,
-        ProjectionExpression: "fileId", //not yet tested
-      },
-      function(err, data.Items){
-        if (data){
-          console.log(data);
-          // resolve(data.Items)
-        } else {
-          console.log(err);
-        }
-      }
-    );
-  })
-
-   // const db = await new awsmobile.DynamoDB.DocumentClient();
-
-   // let testobj = {
-   //   body: {
-   //     id: uid,
-   //     deviceId: deviceId,
-   //     fileId: randFileKey
-   //   }
-   // }
-   // await API.put("useraccessholderCRUD", path, testobj)
- }
 
  //NAVIGATION FUNCTIONS
   navPageRecord = () => {
@@ -141,7 +98,6 @@ export default class App extends React.Component {
     }
   }
 
-
     //AUDIO FUNCTIONS!
   recordToggle = async () => {
     if (this.recording){ //PAUSE ME
@@ -155,6 +111,7 @@ export default class App extends React.Component {
         });
       }
     } else { //INITIALIZE AND RECORD
+      //Haptic.impact(Haptic.ImpactFeedbackStyle.Medium);
       this.setState({isLoading: true});
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
@@ -180,33 +137,6 @@ export default class App extends React.Component {
   }
 
 
-  logUserAccess = async (randFileKey, deviceId) => {
-    let uid = await (new Date).getTime()+Math.round(10000000*Math.random());
-    try {
-      const path = "/items";
-      let testobj = {
-        body: {
-          id: uid,
-          deviceId: deviceId,
-          fileId: randFileKey
-        }
-      }
-      await API.put("useraccessholderCRUD", path, testobj)
-    }
-    catch (error){
-      console.log('error ! logging to access db!', error)
-    }
-  }
-  getRandomFile = async () => {
-    fileList = await Storage.list('uploaded/');
-    randFileIndex = await Math.round(10*Math.random(fileList.length-1));
-    randFilePath = await fileList[randFileIndex].key;
-    randFileKey = randFilePath.substr(randFilePath.lastIndexOf('/') + 1);
-    return Storage.get(randFileKey);
-  }
-  //request random file that i have not yet ACCESSED
-  //fileList where (key not in (select distinct key from userAccessDb where deviceID = device id))
-  //
 
   listenToggle = async () => {
       if (this.soundObject){
@@ -216,25 +146,31 @@ export default class App extends React.Component {
           await this.soundObject.playAsync();
         }
       } else {
+        //Haptic.impact(Haptic.ImpactFeedbackStyle.Medium);
         this.setState({
           isLoading: true,
         });
-
         //REQUEST AND PLAY RANDOM FILE
-        // const newSoundURL = await Storage.get('uploaded/torotester.mp3');
-        // this.getRandomFile();
-        // const soundObject = new Audio.Sound();
-        // this.soundObject = soundObject;
-        // soundObject.setOnPlaybackStatusUpdate(this.updateTimer);
-        // await soundObject.loadAsync({uri: newSoundURL}, this.updateTimer)
-        // await soundObject.playAsync();
+        const newSoundURL = await Storage.get('uploaded/torotester.mp3');
+        // const unplayedList = await api.getRandomFile(Constants.deviceId);
+        // const unplayedListItems  = unplayedList.Items;
+        // const randIndex = Math.round(Math.random()*(unplayedListItems.length - 1));
+        // const randFileKey = unplayedListItems[randIndex].fileId;
+        // const randFilePath = 'public/uploaded/' + randFileKey;
+        ///const newSoundURL = await Storage.get(randFilePath);
+        const soundObject = new Audio.Sound();
+        this.soundObject = soundObject;
+        soundObject.setOnPlaybackStatusUpdate(this.updateTimer);
+        await soundObject.loadAsync({uri: newSoundURL}, this.updateTimer)
+        await soundObject.playAsync();
 
         //LOG THAT FILE WAS ACCESSED
-        // await this.logUserAccess(randFileKey, 'bleeergh')
-        this.setState({isLoading: false})
+        // await api.logAccessedFile(randFileKey, Constants.installationId)
+        // this.setState({isLoading: false})
       }
     }
    audioPlayToggle = async () => {
+     ////Haptic.impact(Haptic.ImpactFeedbackStyle.Medium);
       if (this.state.pageState == 'record'){
         this.recordToggle();
       }
@@ -242,6 +178,7 @@ export default class App extends React.Component {
         this.listenToggle();
       }
   }
+
   stopAudio = async () => {
     if (this.recording){ //note, no loading spinner. happens in background
       await this.recording.stopAndUnloadAsync();
@@ -257,20 +194,48 @@ export default class App extends React.Component {
       const info =  await FileSystem.getInfoAsync(this.recording.getURI());
       await this.recording.setOnRecordingStatusUpdate(null);
       infoURI = info.uri;
-      var filePath = 'uploaded/' + infoURI.substr(infoURI.lastIndexOf('/') + 1);
+      const fileWithoutPath = infoURI.substr(infoURI.lastIndexOf('/') + 1);
+      var filePath = 'uploaded/' + fileWithoutPath;
       const response = await fetch(infoURI); //get the actual audio file
       const blob = await response.blob();
       await Storage.put(filePath, blob)
-        .catch(err => console.log(err));
-      this.recording = null;
+      .then(result => {
+           // console.log(result)
+      })
+      .catch(err => console.log(err));
+      // this.recording = null;
+      //
+      // api.uploadFile(infoURI)
+
+      // fetch(infoURI)
+      // .then(response => response.blob())
+      // .then(Buffer => Storage.put(filePath, Buffer, {contentType: 'audio/x-caf'}))
+      // .then(x => console.log('SAVED AUDIO', x) || x)
+      // .catch(err => console.log("AUDIO UPLOAD ERROR", err));
+
+        this.recording = null;
+
+      //api.logAccessedFile(fileWithoutPath, Constants.installationId)
+
+        //sound can play
+        // const soundObject = new Audio.Sound();
+        // this.soundObject = soundObject;
+        // soundObject.setOnPlaybackStatusUpdate(this.updateTimer);
+        // await soundObject.loadAsync({uri: '/uploaded/recording-9C1311BC-D15B-4405-9D20-631BFB5C487C.caf'}, this.updateTimer)
+        // await soundObject.playAsync();
+
+
+
     }
   }
   audioReplay = async () => {
+    ////Haptic.impact(Haptic.ImpactFeedbackStyle.Medium);
     await this.soundObject.setPositionAsync(0);
     await this.soundObject.pauseAsync();
     this.setState({audioState: 'init'});
   }
   audioRestart = async () => {
+    ////Haptic.impact(Haptic.ImpactFeedbackStyle.Medium);
     await this.recording.stopAndUnloadAsync();
     this.recording = null;
   }
@@ -325,7 +290,6 @@ export default class App extends React.Component {
       });
    }
   }
-
 
   //PAGE AND COMPONENT RENDER FUNCTIONS
   renderPageIntro = () => {

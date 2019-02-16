@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { AppText }  from '../styleComponents/AppText';
-import { colors }  from '../styleComponents/Variables';
+import { AppText }  from '../components/AppText';
+import { colors }  from '../components/Variables';
 
 export class Dialog extends React.Component {
   render() {

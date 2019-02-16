@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback } from 'react-native';
-// import { AppText }  from '../styleComponents/AppText';
-import { ButtonAudio }  from '../styleComponents/ButtonAudio';
+// import { AppText }  from '../components/AppText';
+import { ButtonAudio }  from '../components/ButtonAudio';
 
 class AudioButtons extends React.Component {
   getPauseButtonText = () => {
