@@ -1,0 +1,13 @@
+{
+    "AppSyncApiName": "blackboxnative",
+    "AuthCognitoUserPoolId": {
+        "Fn::GetAtt": [
+            "authcognito5151165f",
+            "Outputs.UserPoolId"
+        ]
+    },
+    "schemaGraphql": "s3://blackboxnative-20190209150600-deployment/amplify-appsync-files/schema.graphql.1550266383555",
+    "ResolverBucket": "blackboxnative-20190209150600-deployment",
+    "ResolverRootKey": "amplify-appsync-files",
+    "DeploymentTimestamp": "1550266383555"
+}

@@ -9,9 +9,15 @@ import ShareConfirmation from './assets/js/ShareConfirmation';
 import AudioWidget from './assets/js/AudioWidget';
 import aws_exports from './aws-exports';
 
-import Amplify, { Storage,  API }  from 'aws-amplify';
+
+import Amplify, { Storage,  API, Auth}  from 'aws-amplify';
 import awsmobile from './aws-exports';
 Amplify.configure(awsmobile);
+
+import AWS from "aws-sdk";
+AWS.config.update({ region: "us-east-1" });
+
+import DynamoDB from 'aws-sdk/clients/dynamodb';
 
 const { UIManager } = NativeModules;
 UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -59,8 +65,35 @@ export default class App extends React.Component {
    LayoutAnimation.easeInEaseOut();
  }
 
- testDynamo = async () => {
-   
+ getAccessedFiles = async (deviceIdInput) => {
+
+   const test = {":currDevice" : deviceIdInput};
+
+   Auth.currentCredentials()
+  .then(credentials => {
+    const db= new DynamoDB.DocumentClient({
+      credentials: Auth.essentialCredentials(credentials)
+    });
+    db.scan(
+      {
+        TableName: 'useraccessholder',
+        FilterExpression: "deviceId = :currDevice",
+        ExpressionAttributeValues: test,
+        ProjectionExpression: "fileId", //not yet tested
+      },
+      function(err, data.Items){
+        if (data){
+          console.log(data);
+          // resolve(data.Items)
+        } else {
+          console.log(err);
+        }
+      }
+    );
+  })
+
+   // const db = await new awsmobile.DynamoDB.DocumentClient();
+
    // let testobj = {
    //   body: {
    //     id: uid,
@@ -75,7 +108,6 @@ export default class App extends React.Component {
   navPageRecord = () => {
     this.animatePageTransition();
     this.setState({pageState: 'record', audioState: 'init'});
-    this.testDynamo();
   }
   navPageConfirmation = () =>  {
     this.recordToggle();
