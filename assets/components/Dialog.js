@@ -25,6 +25,5 @@ const styles = StyleSheet.create({
     display: 'flex',
     fontSize: 20,
     padding: 20,
-    backgroundColor: colors.darkBackground,
   },
 });

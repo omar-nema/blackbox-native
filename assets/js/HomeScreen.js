@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback } from 'react-native';
 import { Dialog }  from '../components/Dialog';
 import { AppText }  from '../components/AppText';
+import { colors }  from '../components/Variables';
 
 class HomeScreen extends React.Component {
 
@@ -34,18 +35,19 @@ class ButtonStartExperience extends React.Component {
 
 const styles = StyleSheet.create({
   dialogText: {
-    color: '#9C9A9A',
+    color: colors.gray,
     fontSize: 22,
   },
   dialogActions: {
     display: 'flex',
-    borderColor: '#73DDC8',
+    borderColor: colors.green,
     borderWidth: 1,
     textAlign: 'center',
     padding: 20,
+    backgroundColor: colors.darkBackground,    
   },
   buttonBegin: {
-    color: '#73DDC8',
+    color: colors.green,
     textAlign: 'center',
     fontSize: 24,
   },

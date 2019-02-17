@@ -8,9 +8,13 @@ export class ButtonAudio extends React.Component {
     super(props);
     this.state = {
       animateButtonScale: new Animated.Value(1.15),
+      animateButtonOpacity: new Animated.Value(0.3),
+      animateButtonOpacityTop: new Animated.Value(1.0),
       disabled: false,
     }
   }
+
+
 
   getButtonStylesGeneral = () => {
     if (this.props.buttonStyle == 'Record' || this.props.buttonStyle == 'Listen'){
@@ -25,27 +29,73 @@ export class ButtonAudio extends React.Component {
     }
   }
 
+
+  animationTopShrink = () => {
+    Animated.timing(
+      this.state.animateButtonScale, {toValue: 1.0, duration: 300},
+      this.state.animateButtonOpacityTop, {toValue: 1.0, duration: 300}
+    ).start();
+    return {opacity: this.state.animateButtonOpacityTop, transform: [{scaleX: this.state.animateButtonScale}, {scaleY: this.state.animateButtonScale}]};
+  }
+  animationTopExpand = () => {
+    this.state.disabled = false;
+     Animated.timing(
+      this.state.animateButtonScale, {toValue: 1.15, duration: 300},
+      this.state.animateButtonOpacityTop, {toValue: 1.0, duration: 300}
+    ).start();
+    return {opacity: this.state.animateButtonOpacityTop, transform: [{scaleX: this.state.animateButtonScale}, {scaleY: this.state.animateButtonScale}]};
+  }
+  animationTopDisable = () => {
+    Animated.timing(
+      this.state.animateButtonOpacityTop, {toValue: 0.3, duration: 300}
+    ).start();
+    this.state.disabled = true;
+    return {opacity: this.state.animateButtonOpacityTop};
+  }
+  animationBottomEnable = () => {
+    this.state.disabled = false;
+    Animated.timing(
+      this.state.animateButtonOpacity, {toValue: 0.9, duration: 300}
+    ).start();
+    return {opacity: this.state.animateButtonOpacity};
+  }
+  animationBottomDisable = () => {
+    Animated.timing(
+      this.state.animateButtonOpacity, {toValue: 0.3, duration: 300}
+    ).start();
+    this.state.disabled = true;
+    return {opacity: this.state.animateButtonOpacity};
+  }
+
+
+  //better way to abstract ==
+  //animateButtonOpacity
+  //
+
   getButtonStylesState = () => {
     if (this.props.audioState == 'init'){
         if (this.props.buttonStyle == 'Record' || this.props.buttonStyle == 'Listen'){
-          this.state.disabled = false;
-          return styles.buttonHighlight
+          return this.animationTopExpand();
         } else {
-          this.state.disabled = true;
-          return styles.buttonDisabled;
+          return this.animationBottomDisable();
         }
-    } else if (this.props.audioState == 'playing'){
-      if (this.props.animate){
-        Animated.timing(
-          this.state.animateButtonScale, {toValue: 1.0, duration: 200}
-        ).start();
-        return {transform: [{scaleX: this.state.animateButtonScale}, {scaleY: this.state.animateButtonScale}]};
-      } else {
-        this.state.disabled = false;
-        return styles.buttonEnabled;
-      }
-
     }
+    else if (this.props.audioState == 'playing'){
+      if (this.props.buttonStyle == 'Record' || this.props.buttonStyle == 'Listen'){ ///CHANGE
+        return this.animationTopShrink();
+      } else {
+        return this.animationBottomEnable();
+      }
+    }
+    else if (this.props.audioState = 'complete'){
+      if (this.props.buttonStyle == 'Listen'){
+        return this.animationTopDisable();
+      } else {
+        return this.animationBottomEnable();
+      }
+    }
+
+
   }
   //should i be setting the styles as states instead
   render() {

@@ -7,7 +7,7 @@ class AudioButtons extends React.Component {
   getPauseButtonText = () => {
     if (this.props.pageState == 'record' && this.props.audioState == 'init'){
       return 'Record';
-    } else if  (this.props.pageState == 'listen' && this.props.audioState == 'init'){
+    } else if  (this.props.pageState == 'listen' && (this.props.audioState == 'init' || this.props.audioState == 'complete')){
       return 'Listen'
     }
     else if (this.props.audioState == 'playing'){

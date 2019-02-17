@@ -16,7 +16,7 @@ class AudioWidget extends React.Component {
     }
 
     getAudioTime = () => {
-      if (this.props.soundPosition){
+      if (this.props.soundPosition && this.props.audioState != 'complete'){
         return Math.round(this.props.soundPosition/1000) + ' seconds';
       } else {
         return '0 seconds'

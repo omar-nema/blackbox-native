@@ -84,18 +84,21 @@ export default class App extends React.Component {
 
  //NAVIGATION FUNCTIONS
   navPageRecord = () => {
+    Haptic.selection();
     this.animatePageTransition();
     this.setState({pageState: 'record', audioState: 'init'});
   }
   navPageConfirmation = () =>  {
-    this.recordToggle();
+    Haptic.selection();
     this.animatePageTransition();
     this.setState({pageState: 'shareConfirmation'});
+    this.recordToggle();
   }
   navPageListen = () => {
-    this.stopAudio();
+    Haptic.selection();
     this.animatePageTransition();
     this.setState({pageState: 'listen', audioState: 'init', soundDuration: null, soundPosition: null})
+    this.stopAudio();
   }
   navPageHome = async () => {
     if (this.recording){
@@ -132,7 +135,6 @@ export default class App extends React.Component {
         });
       }
     } else { //INITIALIZE AND RECORD
-      //Haptic.impact(Haptic.ImpactFeedbackStyle.Medium);
       this.setState({isLoading: true});
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
@@ -150,13 +152,9 @@ export default class App extends React.Component {
       await recording.prepareToRecordAsync(this.recordingSettings);
       this.recording = recording;
       await this.recording.startAsync(); // Will call this._updateScreenForRecordingStatus to
-      await recording.setOnRecordingStatusUpdate(this.updateTimer);
-      this.setState({
-        isLoading: false,
-      });
+      await recording.setOnRecordingStatusUpdate(this.updateTimer); 
     }
   }
-
 
 
   listenToggle = async () => {
@@ -166,8 +164,12 @@ export default class App extends React.Component {
         } else {
           await this.soundObject.playAsync();
         }
-      } else {
-        //Haptic.impact(Haptic.ImpactFeedbackStyle.Medium);
+      }
+      else if (this.state.audioState == 'complete'){
+        this.soundObject.replayAsync();
+      }
+      else {
+
         this.setState({
           isLoading: true,
         });
@@ -188,12 +190,11 @@ export default class App extends React.Component {
         await soundObject.playAsync();
 
         //LOG THAT FILE WAS ACCESSED
-        await api.logAccessedFile(randFileKey, Constants.installationId)
-        this.setState({isLoading: false})
+        // await api.logAccessedFile(randFileKey, Constants.installationId)
+
       }
     }
    audioPlayToggle = async () => {
-     ////Haptic.impact(Haptic.ImpactFeedbackStyle.Medium);
       if (this.state.pageState == 'record'){
         this.recordToggle();
       }
@@ -245,13 +246,11 @@ export default class App extends React.Component {
     }
   }
   audioReplay = async () => {
-    ////Haptic.impact(Haptic.ImpactFeedbackStyle.Medium);
     await this.soundObject.setPositionAsync(0);
     await this.soundObject.pauseAsync();
     this.setState({audioState: 'init'});
   }
   audioRestart = async () => {
-    ////Haptic.impact(Haptic.ImpactFeedbackStyle.Medium);
     await this.recording.stopAndUnloadAsync();
     this.recording = null;
   }
@@ -262,14 +261,9 @@ export default class App extends React.Component {
    if (status.canRecord) {
      this.setState({
        soundPosition: status.durationMillis,
-       // shouldPlay: status.shouldPlay,
-       // isPlaying: status.isPlaying,
-       // rate: status.rate,
-       // muted: status.isMuted,
-       // volume: status.volume,
-       // shouldCorrectPitch: status.shouldCorrectPitch,
      });
      if (status.isRecording) {
+       this.setState({isLoading: false});
        this.setState({
          audioState: 'playing'
        })
@@ -283,18 +277,17 @@ export default class App extends React.Component {
      this.setState({
        soundDuration: status.durationMillis,
        soundPosition: status.positionMillis,
-       // isPlaying: status.isPlaying,
-       // rate: status.rate,
-       // muted: status.isMuted,
-       // volume: status.volume,
-       // shouldCorrectPitch: status.shouldCorrectPitch,
      })
      if (status.isPlaying) {
+       this.setState({isLoading: false});
        this.setState({
          audioState: 'playing',
        })
      }
-     else if (status.isPlaying == false && status.positionMillis > 0) {
+     else if (status.isPlaying == false && status.positionMillis == status.durationMillis){
+      this.setState({audioState: 'complete'})
+    }
+     else if (status.isPlaying == false && status.positionMillis > 0 ) {
        this.setState({audioState: 'paused'})
      }
    }
@@ -326,7 +319,7 @@ export default class App extends React.Component {
     }
   }
   renderCompAudioButtons = () =>  {
-    if (this.state.pageState == 'record' || this.state.pageState == 'listen' ){
+    if (this.state.pageState == 'record' || this.state.pageState == 'listen' || this.state.pageState == 'complete'){
       return (
         <AudioButtons
         pageState={this.state.pageState}
