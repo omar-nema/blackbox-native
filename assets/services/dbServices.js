@@ -1,6 +1,6 @@
 import {Auth}  from 'aws-amplify';
 import AWS from "aws-sdk";
-// import * as R from 'ramda';
+import * as R from 'ramda';
 AWS.config.update({ region: "us-east-1" });
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 
@@ -10,36 +10,50 @@ import DynamoDB from 'aws-sdk/clients/dynamodb';
 
     return new Promise ((resolve, reject) => {
       Auth.currentCredentials()
-      .then(credentials => {
-        const s3 = new AWS.S3();
-        const key = uri.substr(uri.lastIndexOf('/') + 1);
-
-        const params = {
-          Bucket: 'blackboxnativeedc5f2c09b3d4f4cb0a7ec2c8c484825',
-          Fields: { key, /* 'Content-Type': 'CONTENT_TYPE' */ }
-        };
-        // const { url, fields } = s3.createPresignedPost(params);
-
-        s3.getSignedUrl('putObject', params, function (err, url) {
-          console.log('The URL is', url);
+      .then(credentials  => {
+        const s3 = new AWS.S3({
+          credentials: Auth.essentialCredentials(credentials)
         });
 
-        // set them to form data
-        // const formData = new FormData();
-        // R.forEachObjIndexed((value, key) => formData.append(key, value), fields);
-        // formData.append('file', { uri });
-        //
-        // // put it into fetch options
-        // const options = {
-        //   method: 'POST',
-        //   body: formData,
-        //   headers: { 'Content-Type': 'multipart/form-data' }
-        // };
-        //
-        //
-        // // request
-        // return fetch(url, options);
+        testOrder = async () => {
+          const key = uri.substr(uri.lastIndexOf('/') + 1);
+
+  //          Region: "us-east-1",
+            // Credentials: credentials,
+
+          const params = {
+            Bucket: 'blackboxnativeedc5f2c09b3d4f4cb0a7ec2c8c484825',
+            Fields: { key, /* 'Content-Type': 'CONTENT_TYPE' */ }
+          };
+          const { url, fields } = await s3.createPresignedPost(params);
+
+          //set them to form data
+          const formData = new FormData();
+          // R.forEachObjIndexed((value, key) => formData.append(key, value), fields);
+          // formData.append('file', { uri });
+
+          await formData.append('file', {
+             uri: uri,
+             key: key,
+             name: 'test.caf'
+           })
+          const options = {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+              body: formData,
+            };
+
+          const resp = await fetch(url, options);
+          console.log(resp)
+        }
+
+        testOrder();
+
+
       })
+
     })
 
 

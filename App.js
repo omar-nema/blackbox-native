@@ -23,7 +23,28 @@ export default class App extends React.Component {
     super(props);
     this.recording = null;
     this.soundObject = null;
-    this.recordingSettings = Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY;
+    // this.recordingSettings = Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY;
+    this.recordingSettings = {
+      android: {
+        extension: '.m4a',
+        outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_MPEG_4,
+        audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
+        sampleRate: 44100,
+        numberOfChannels: 2,
+        bitRate: 128000,
+      },
+      ios : {
+        extension: '.m4a',
+        outputFormat: Audio.RECORDING_OPTION_IOS_OUTPUT_FORMAT_APPLELOSSLESS,
+        audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_MIN,
+        sampleRate: 44100,
+        numberOfChannels: 2,
+        bitRate: 128000,
+        linearPCMBitDepth: 16,
+        linearPCMIsBigEndian: false,
+        linearPCMIsFloat: false,
+      }
+    },
     this.state = {
       pageState: 'intro',
       audioState: null, //init, pause, play, etc
@@ -151,7 +172,9 @@ export default class App extends React.Component {
           isLoading: true,
         });
         //REQUEST AND PLAY RANDOM FILE
-        const newSoundURL = await Storage.get('uploaded/torotester.mp3');
+        //const newSoundURL = await Storage.get('uploaded/torotester.mp3');
+        const newSoundURL = await Storage.get('uploaded/recording-98DBF1E8-8ED0-4E94-A590-7B80D654F5F4.caf');
+
         // const unplayedList = await api.getRandomFile(Constants.deviceId);
         // const unplayedListItems  = unplayedList.Items;
         // const randIndex = Math.round(Math.random()*(unplayedListItems.length - 1));
@@ -179,6 +202,21 @@ export default class App extends React.Component {
       }
   }
 
+ urlToBlob = (url) => { //react native blobulation does not work for m4a
+  return new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest();
+      xhr.onerror = reject;
+      xhr.onreadystatechange = () => {
+          if (xhr.readyState === 4) {
+              resolve(xhr.response);
+          }
+      };
+      xhr.open('GET', url);
+      xhr.responseType = 'blob'; // convert type
+      xhr.send();
+  })
+}
+
   stopAudio = async () => {
     if (this.recording){ //note, no loading spinner. happens in background
       await this.recording.stopAndUnloadAsync();
@@ -196,35 +234,14 @@ export default class App extends React.Component {
       infoURI = info.uri;
       const fileWithoutPath = infoURI.substr(infoURI.lastIndexOf('/') + 1);
       var filePath = 'uploaded/' + fileWithoutPath;
-      const response = await fetch(infoURI); //get the actual audio file
-      const blob = await response.blob();
-      await Storage.put(filePath, blob)
+      let blob = await this.urlToBlob(infoURI)
+
+      await Storage.put(filePath, blob, {contentType: "audio/x-m4a"})
       .then(result => {
-           // console.log(result)
+           console.log(result)
       })
       .catch(err => console.log(err));
-      // this.recording = null;
-      //
-      // api.uploadFile(infoURI)
-
-      // fetch(infoURI)
-      // .then(response => response.blob())
-      // .then(Buffer => Storage.put(filePath, Buffer, {contentType: 'audio/x-caf'}))
-      // .then(x => console.log('SAVED AUDIO', x) || x)
-      // .catch(err => console.log("AUDIO UPLOAD ERROR", err));
-
-        this.recording = null;
-
-      //api.logAccessedFile(fileWithoutPath, Constants.installationId)
-
-        //sound can play
-        // const soundObject = new Audio.Sound();
-        // this.soundObject = soundObject;
-        // soundObject.setOnPlaybackStatusUpdate(this.updateTimer);
-        // await soundObject.loadAsync({uri: '/uploaded/recording-9C1311BC-D15B-4405-9D20-631BFB5C487C.caf'}, this.updateTimer)
-        // await soundObject.playAsync();
-
-
+      this.recording = null;
 
     }
   }
