@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback } from 'react-native';
-// import { AppText }  from '../components/AppText';
-import { ButtonAudio }  from '../components/ButtonAudio';
+// import { AppText }  from '../assets/components/nested/AppText';
+import { ButtonAudio }  from './nested/ButtonAudio';
 
 class AudioButtons extends React.Component {
   getPauseButtonText = () => {
@@ -48,7 +48,7 @@ class AudioButtons extends React.Component {
   render(){
     return (
       <View>
-        <ButtonAudio animate={true} onTouch={this.props.audioPlayToggle} buttonStyle={this.getPauseButtonText()} audioState={this.props.audioState}>
+        <ButtonAudio onTouch={this.props.audioPlayToggle} buttonStyle={this.getPauseButtonText()} audioState={this.props.audioState}>
           {this.getPauseButtonText()}
         </ButtonAudio>
         <ButtonAudio onTouch={this.getShareButtonFunction()} buttonStyle={this.getShareButtonText()} audioState={this.props.audioState}>

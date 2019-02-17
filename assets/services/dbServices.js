@@ -5,6 +5,22 @@ AWS.config.update({ region: "us-east-1" });
 import DynamoDB from 'aws-sdk/clients/dynamodb';
 
 
+
+urlToBlob = (url) => { //react native blobulation does not work for m4a
+ return new Promise((resolve, reject) => {
+     var xhr = new XMLHttpRequest();
+     xhr.onerror = reject;
+     xhr.onreadystatechange = () => {
+         if (xhr.readyState === 4) {
+             resolve(xhr.response);
+         }
+     };
+     xhr.open('GET', url);
+     xhr.responseType = 'blob'; // convert type
+     xhr.send();
+ })
+}
+
  getAccessedFiles = async (deviceIdInput) => {
    const test = {":currDevice" : deviceIdInput};
 
@@ -91,5 +107,6 @@ logAccessedFile = async (fileAccessed, deviceId) => {
  export const api = {
    getAccessedFiles,
    logAccessedFile,
-   getRandomFile
+   getRandomFile,
+   urlToBlob
  }

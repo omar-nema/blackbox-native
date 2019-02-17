@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback } from 'react-native';
-import { AppText }  from '../components/AppText';
-import { colors }  from '../components/Variables';
-import { Dialog }  from '../components/Dialog';
+import { AppText }  from './nested/AppText';
+import { colors }  from './nested/Variables';
+import { Dialog }  from './nested/Dialog';
 
 class ShareConfirmation extends React.Component {
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Animated, View, Text, StyleSheet, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback} from 'react-native';
-import { colors }  from '../components/Variables';
+import { colors }  from './Variables';
 
 export class ButtonAudio extends React.Component {
 
@@ -68,10 +68,6 @@ export class ButtonAudio extends React.Component {
   }
 
 
-  //better way to abstract ==
-  //animateButtonOpacity
-  //
-
   getButtonStylesState = () => {
     if (this.props.audioState == 'init'){
         if (this.props.buttonStyle == 'Record' || this.props.buttonStyle == 'Listen'){
@@ -128,12 +124,6 @@ const styles = StyleSheet.create({
     opacity: 1,
     backgroundColor: colors.darkBackground,
   },
-  // test: {
-  //   transform: [
-  //     { scaleX: this.props.animateButtonScale },
-  //     { scaleY: 1.15 },
-  //   ],
-  // },
   buttonText: {
     fontSize: 24,
     textAlign: 'center',

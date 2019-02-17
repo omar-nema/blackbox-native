@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View} from 'react-native';
-import { colors }  from '../components/Variables';
+import { colors }  from './nested/Variables';
 
 class AudioWidget extends React.Component {
     getAudioStateText = () => {

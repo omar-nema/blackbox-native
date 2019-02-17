@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import { colors }  from '../components/Variables';
-import { AppText }  from '../components/AppText';
+import { colors }  from './nested/Variables';
+import { AppText }  from './nested/AppText';
 
 class Header extends React.Component {
 
@@ -88,19 +88,5 @@ styles = StyleSheet.create({
     fontFamily: 'KarlaRegular'
   }
 })
-//
-
-
-
-// <div className='header'>
-//   <div className='header-inner-container'>
-//     <div className='header-content '>
-//       <div className={this.getRecordClass()}>record</div>
-//       <div className={this.getArrowClass()}>{navChar}</div>
-//       <div className={this.getListenClass()}>listen</div>
-//     </div>
-//     {this.renderBackButton()}
-//   </div>
-// </div>
 
 export default Header;

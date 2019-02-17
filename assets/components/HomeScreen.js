@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback } from 'react-native';
-import { Dialog }  from '../components/Dialog';
-import { AppText }  from '../components/AppText';
-import { colors }  from '../components/Variables';
+import { Dialog }  from './nested/Dialog';
+import { AppText }  from './nested/AppText';
+import { colors }  from './nested/Variables';
 
 class HomeScreen extends React.Component {
 
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     textAlign: 'center',
     padding: 20,
-    backgroundColor: colors.darkBackground,    
+    backgroundColor: colors.darkBackground,
   },
   buttonBegin: {
     color: colors.green,

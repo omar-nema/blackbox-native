@@ -1,12 +1,12 @@
 import React from 'react';
 import { Animated, StyleSheet, NativeModules, LayoutAnimation, Text, View, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback, ActivityIndicator, AppRegistry} from 'react-native';
 import Expo, {Haptic, Constants,  Asset, Audio, FileSystem, Font, Permissions } from 'expo';
-import Header from './assets/js/Header';
+import Header from './assets/components/Header';
 // import DeviceInfo from 'react-native-device-info';
-import HomeScreen from './assets/js/HomeScreen';
-import AudioButtons from './assets/js/AudioButtons';
-import ShareConfirmation from './assets/js/ShareConfirmation';
-import AudioWidget from './assets/js/AudioWidget';
+import HomeScreen from './assets/components/HomeScreen';
+import AudioButtons from './assets/components/AudioButtons';
+import ShareConfirmation from './assets/components/ShareConfirmation';
+import AudioWidget from './assets/components/AudioWidget';
 import aws_exports from './aws-exports';
 import Amplify, { Storage, Auth}  from 'aws-amplify';
 import awsmobile from './aws-exports';
@@ -76,11 +76,10 @@ export default class App extends React.Component {
     throw new Error('We cannot proceed without audio permissions! Please re-launch the application and grant permission.');
   }
  };
-
+ //HELPER FUNCTIONS
  animatePageTransition = () => {
    LayoutAnimation.easeInEaseOut();
  }
-
 
  //NAVIGATION FUNCTIONS
   navPageRecord = () => {
@@ -122,7 +121,57 @@ export default class App extends React.Component {
     }
   }
 
-    //AUDIO FUNCTIONS!
+
+  //PAGE AND COMPONENT RENDER FUNCTIONS
+  renderPageIntro = () => {
+    if (this.state.pageState == 'intro'){
+      return (
+        <HomeScreen onTouch={this.navPageRecord}></HomeScreen>
+      )
+    }
+  }
+  renderPageShareConfirmation = () =>  {
+    if (this.state.pageState == 'shareConfirmation'){
+      return (
+        <ShareConfirmation navPageHome={this.navPageHome} navPageListen={this.navPageListen}/>
+      )
+    }
+  }
+  renderCompAudioButtons = () =>  {
+    if (this.state.pageState == 'record' || this.state.pageState == 'listen' || this.state.pageState == 'complete'){
+      return (
+        <AudioButtons
+        pageState={this.state.pageState}
+        audioState={this.state.audioState}
+        audioPlayToggle={this.audioPlayToggle}
+        audioRestart={this.audioRestart}
+        audioReplay={this.audioReplay}
+        shareConfirmation={this.shareConfirmation}
+        navPageHome={this.navPageHome}
+        navPageConfirmation={this.navPageConfirmation}
+        />
+      )
+    }
+  }
+  renderCompHeader = () => {
+    if (this.state.pageState != 'intro'){
+      return <Header navPageBack={this.navPageBack} pageState={this.state.pageState}></Header>;
+    }
+  }
+  renderCompAudioWidget = () => {
+    if (this.state.pageState == 'record' || this.state.pageState == 'listen'){
+      return audioWidget = <AudioWidget pageState={this.state.pageState} audioState={this.state.audioState} soundPosition={this.state.soundPosition}/>;
+    }
+  }
+  renderLoadingSpinner = () => {
+    if (this.state.isLoading){
+      return <View style={styles.spinnerHolder}>
+        <ActivityIndicator animating={true} color='#656060' style={styles.spinner} size="large" />
+      </View>
+    }
+  }
+
+  //AUDIO FUNCTIONS!
   recordToggle = async () => {
     if (this.recording){ //PAUSE ME
       if (this.state.audioState == 'playing'){
@@ -155,8 +204,6 @@ export default class App extends React.Component {
       await recording.setOnRecordingStatusUpdate(this.updateTimer); 
     }
   }
-
-
   listenToggle = async () => {
       if (this.soundObject){
         if (this.state.audioState == 'playing'){
@@ -190,7 +237,7 @@ export default class App extends React.Component {
         await soundObject.playAsync();
 
         //LOG THAT FILE WAS ACCESSED
-        // await api.logAccessedFile(randFileKey, Constants.installationId)
+        await api.logAccessedFile(randFileKey, Constants.installationId)
 
       }
     }
@@ -202,22 +249,6 @@ export default class App extends React.Component {
         this.listenToggle();
       }
   }
-
- urlToBlob = (url) => { //react native blobulation does not work for m4a
-  return new Promise((resolve, reject) => {
-      var xhr = new XMLHttpRequest();
-      xhr.onerror = reject;
-      xhr.onreadystatechange = () => {
-          if (xhr.readyState === 4) {
-              resolve(xhr.response);
-          }
-      };
-      xhr.open('GET', url);
-      xhr.responseType = 'blob'; // convert type
-      xhr.send();
-  })
-}
-
   stopAudio = async () => {
     if (this.recording){ //note, no loading spinner. happens in background
       await this.recording.stopAndUnloadAsync();
@@ -235,13 +266,17 @@ export default class App extends React.Component {
       infoURI = info.uri;
       const fileWithoutPath = infoURI.substr(infoURI.lastIndexOf('/') + 1);
       var filePath = 'uploaded/' + fileWithoutPath;
-      let blob = await this.urlToBlob(infoURI)
+      let blob = await api.urlToBlob(infoURI)
 
       await Storage.put(filePath, blob, {contentType: "audio/x-m4a"})
       .then(result => {
            console.log(result)
       })
       .catch(err => console.log(err));
+
+      //LOG THAT FILE WAS ACCESSED (don't want to give user the file they just recorded)
+      await api.logAccessedFile(filePath, Constants.installationId)
+
       this.recording = null;
     }
   }
@@ -300,57 +335,6 @@ export default class App extends React.Component {
    }
   }
 
-  //PAGE AND COMPONENT RENDER FUNCTIONS
-  renderPageIntro = () => {
-    if (this.state.pageState == 'intro'){
-      return (
-        <HomeScreen onTouch={this.navPageRecord}></HomeScreen>
-      )
-    }
-  }
-
-
-
-  renderPageShareConfirmation = () =>  {
-    if (this.state.pageState == 'shareConfirmation'){
-      return (
-        <ShareConfirmation navPageHome={this.navPageHome} navPageListen={this.navPageListen}/>
-      )
-    }
-  }
-  renderCompAudioButtons = () =>  {
-    if (this.state.pageState == 'record' || this.state.pageState == 'listen' || this.state.pageState == 'complete'){
-      return (
-        <AudioButtons
-        pageState={this.state.pageState}
-        audioState={this.state.audioState}
-        audioPlayToggle={this.audioPlayToggle}
-        audioRestart={this.audioRestart}
-        audioReplay={this.audioReplay}
-        shareConfirmation={this.shareConfirmation}
-        navPageHome={this.navPageHome}
-        navPageConfirmation={this.navPageConfirmation}
-        />
-      )
-    }
-  }
-  renderCompHeader = () => {
-    if (this.state.pageState != 'intro'){
-      return <Header navPageBack={this.navPageBack} pageState={this.state.pageState}></Header>;
-    }
-  }
-  renderCompAudioWidget = () => {
-    if (this.state.pageState == 'record' || this.state.pageState == 'listen'){
-      return audioWidget = <AudioWidget pageState={this.state.pageState} audioState={this.state.audioState} soundPosition={this.state.soundPosition}/>;
-    }
-  }
-  renderLoadingSpinner = () => {
-    if (this.state.isLoading){
-      return <View style={styles.spinnerHolder}>
-        <ActivityIndicator animating={true} color='#656060' style={styles.spinner} size="large" />
-      </View>
-    }
-  }
 
   render() {
     return (
