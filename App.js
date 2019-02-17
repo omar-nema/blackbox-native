@@ -172,15 +172,15 @@ export default class App extends React.Component {
           isLoading: true,
         });
         //REQUEST AND PLAY RANDOM FILE
-        //const newSoundURL = await Storage.get('uploaded/torotester.mp3');
-        const newSoundURL = await Storage.get('uploaded/recording-98DBF1E8-8ED0-4E94-A590-7B80D654F5F4.caf');
+        // const newSoundURL = await Storage.get('uploaded/FILEKEY') //hardcoded file for testing
+        const unplayedList = await api.getRandomFile(Constants.deviceId);
+        const unplayedListItems  = unplayedList.Items;
 
-        // const unplayedList = await api.getRandomFile(Constants.deviceId);
-        // const unplayedListItems  = unplayedList.Items;
-        // const randIndex = Math.round(Math.random()*(unplayedListItems.length - 1));
-        // const randFileKey = unplayedListItems[randIndex].fileId;
-        // const randFilePath = 'public/uploaded/' + randFileKey;
-        ///const newSoundURL = await Storage.get(randFilePath);
+        const randIndex = Math.round(Math.random()*(unplayedListItems.length - 1));
+        const randFileKey = unplayedListItems[randIndex].fileId;
+        const randFilePath = 'uploaded/' + randFileKey;
+        const newSoundURL = await Storage.get(randFilePath);
+
         const soundObject = new Audio.Sound();
         this.soundObject = soundObject;
         soundObject.setOnPlaybackStatusUpdate(this.updateTimer);
@@ -188,8 +188,8 @@ export default class App extends React.Component {
         await soundObject.playAsync();
 
         //LOG THAT FILE WAS ACCESSED
-        // await api.logAccessedFile(randFileKey, Constants.installationId)
-        // this.setState({isLoading: false})
+        await api.logAccessedFile(randFileKey, Constants.installationId)
+        this.setState({isLoading: false})
       }
     }
    audioPlayToggle = async () => {
@@ -242,7 +242,6 @@ export default class App extends React.Component {
       })
       .catch(err => console.log(err));
       this.recording = null;
-
     }
   }
   audioReplay = async () => {
