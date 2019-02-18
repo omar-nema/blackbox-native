@@ -8,7 +8,3 @@ export class AppText extends React.Component {
     );
   }
 }
-
-//button component. red, grey, yellow, neutral
-
-//style={{fontSize: 20, fontFamily: 'KarlaRegular', color: '#9C9A9A'}}

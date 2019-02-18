@@ -11,7 +11,8 @@ class HomeScreen extends React.Component {
     return (
       <View>
         <Dialog>
-        'Blackbox' is another way of talking. Send a voice recording, and receive one back. Each recording is unique, and will only be played once.
+        'Blackbox' is another way of talking.{"\n"}{"\n"}
+        Send a voice recording, and receive one back. Each recording is unique, and will only be played once.
         </Dialog>
         <ButtonStartExperience onTouch={this.props.onTouch}/>
       </View>

@@ -14,8 +14,6 @@ export class ButtonAudio extends React.Component {
     }
   }
 
-
-
   getButtonStylesGeneral = () => {
     if (this.props.buttonStyle == 'Record' || this.props.buttonStyle == 'Listen'){
       return [[styles.buttonCore, styles.buttonGreen], [styles.buttonText, styles.buttonGreenText]];
@@ -28,8 +26,6 @@ export class ButtonAudio extends React.Component {
       return [[styles.buttonCore, styles.buttonRed], [styles.buttonText, styles.buttonRedText]];
     }
   }
-
-
   animationTopShrink = () => {
     Animated.timing(
       this.state.animateButtonScale, {toValue: 1.0, duration: 300},
@@ -67,9 +63,8 @@ export class ButtonAudio extends React.Component {
     return {opacity: this.state.animateButtonOpacity};
   }
 
-
   getButtonStylesState = () => {
-    if (this.props.audioState == 'init'){
+     if (this.props.audioState == 'init'){
         if (this.props.buttonStyle == 'Record' || this.props.buttonStyle == 'Listen'){
           return this.animationTopExpand();
         } else {
@@ -90,10 +85,8 @@ export class ButtonAudio extends React.Component {
         return this.animationBottomEnable();
       }
     }
-
-
   }
-  //should i be setting the styles as states instead
+
   render() {
     return (
       <Animated.View style={this.getButtonStylesState()}>
@@ -112,7 +105,7 @@ const styles = StyleSheet.create({
     borderColor: '#73DDC8',
     borderWidth: 1,
     color: '#73DDC8',
-    marginBottom: 20,
+    marginBottom: 30,
     borderWidth: 1,
     textAlign: 'center',
     backgroundColor: '#141414',

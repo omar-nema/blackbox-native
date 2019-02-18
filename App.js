@@ -1,8 +1,9 @@
 import React from 'react';
 import { Animated, StyleSheet, NativeModules, LayoutAnimation, Text, View, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback, ActivityIndicator, AppRegistry} from 'react-native';
-import Expo, {Haptic, Constants,  Asset, Audio, FileSystem, Font, Permissions } from 'expo';
+import Expo, {Haptic, Constants,  Asset, Audio, FileSystem, Font, Permissions, Svg} from 'expo';
 import Header from './assets/components/Header';
 // import DeviceInfo from 'react-native-device-info';
+import Logo from './assets/components/Logo';
 import HomeScreen from './assets/components/HomeScreen';
 import AudioButtons from './assets/components/AudioButtons';
 import ShareConfirmation from './assets/components/ShareConfirmation';
@@ -23,7 +24,7 @@ export default class App extends React.Component {
     super(props);
     this.recording = null;
     this.soundObject = null;
-    // this.recordingSettings = Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY;
+    this.fileAccessed = null;
     this.recordingSettings = {
       android: {
         extension: '.m4a',
@@ -54,9 +55,12 @@ export default class App extends React.Component {
       soundPosition: null,
       soundDuration: null,
       fontLoaded: false,
-
+      audioLoaded: false,
+      recordingLoaded: false,
     }
   };
+
+  //INITIALIZATION
  componentDidMount() {
    (async () => {
     await Font.loadAsync({
@@ -65,24 +69,67 @@ export default class App extends React.Component {
     });
     this.setState({ fontLoaded: true });
   })();
-  this.askForPermissions();
+  (async () => {
+    await this.askForPermissions();
+    await this.initializeRecording();
+    this.setState({ recordingLoaded: true})
+    await this.initializeListening();
+    this.setState({ audioLoaded: true})
+  })();
 };
  askForPermissions = async () => {
    const response = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
-   this.setState({
+   await this.setState({
      haveRecordingPermissions: response.status === 'granted',
    });
+
   if (response.status != 'granted') {
     throw new Error('We cannot proceed without audio permissions! Please re-launch the application and grant permission.');
   }
  };
+ initializeRecording = async () => {
+   this.setState({recordingLoaded: false})
+   await Audio.setAudioModeAsync({
+     allowsRecordingIOS: true,
+     interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
+     playsInSilentModeIOS: true,
+     shouldDuckAndroid: true,
+     interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+     playThroughEarpieceAndroid: true,
+   });
+   if (this.recording !== null) {
+     this.recording.setOnRecordingStatusUpdate(null);
+     // this.recording = null;
+   }
+   const recording = new Audio.Recording();
+   await recording.prepareToRecordAsync(this.recordingSettings);
+       console.log('INITIALIZED REC')
+   return this.recording = recording;
+ }
+ initializeListening = async () => {
+   this.setState({audioLoaded: false})
+   const unplayedList = await api.getRandomFile(Constants.deviceId);
+   const unplayedListItems  = unplayedList.Items;
+   const randIndex = Math.round(Math.random()*(unplayedListItems.length - 1));
+   const randFileKey = unplayedListItems[randIndex].fileId;
+   this.fileAccessed = randFileKey;
+   const randFilePath = 'uploaded/' + randFileKey;
+   const newSoundURL = await Storage.get(randFilePath);
+   const soundObject = await new Audio.Sound();
+   this.soundObject = soundObject;
+   await this.soundObject.setOnPlaybackStatusUpdate(this.updateTimer);
+   console.log('INITIALIZED LISTENING', newSoundURL)
+   return await this.soundObject.loadAsync({uri: newSoundURL}, this.updateTimer);
+ }
+
+
  //HELPER FUNCTIONS
  animatePageTransition = () => {
    LayoutAnimation.easeInEaseOut();
  }
 
  //NAVIGATION FUNCTIONS
-  navPageRecord = () => {
+  navPageRecord = async () => {
     Haptic.selection();
     this.animatePageTransition();
     this.setState({pageState: 'record', audioState: 'init'});
@@ -103,6 +150,7 @@ export default class App extends React.Component {
     if (this.recording){
        await this.recording.stopAndUnloadAsync();
        this.recording = null;
+       this.intitializeRecording();
     }
     if (this.soundObject){
       this.soundObject.unloadAsync();
@@ -130,6 +178,12 @@ export default class App extends React.Component {
       )
     }
   }
+  renderCompLogo = () => {
+    if (this.state.pageState == 'intro'){
+      return <Logo></Logo>
+    }
+  }
+
   renderPageShareConfirmation = () =>  {
     if (this.state.pageState == 'shareConfirmation'){
       return (
@@ -138,10 +192,11 @@ export default class App extends React.Component {
     }
   }
   renderCompAudioButtons = () =>  {
-    if (this.state.pageState == 'record' || this.state.pageState == 'listen' || this.state.pageState == 'complete'){
+    if ((this.state.pageState == 'record' && this.state.recordingLoaded) || (this.state.pageState == 'listen' && this.state.audioLoaded) || this.state.pageState == 'complete'){
       return (
         <AudioButtons
         pageState={this.state.pageState}
+        isLoading={this.state.isLoading}
         audioState={this.state.audioState}
         audioPlayToggle={this.audioPlayToggle}
         audioRestart={this.audioRestart}
@@ -152,6 +207,7 @@ export default class App extends React.Component {
         />
       )
     }
+
   }
   renderCompHeader = () => {
     if (this.state.pageState != 'intro'){
@@ -159,7 +215,7 @@ export default class App extends React.Component {
     }
   }
   renderCompAudioWidget = () => {
-    if (this.state.pageState == 'record' || this.state.pageState == 'listen'){
+    if ((this.state.pageState == 'record' && this.state.recordingLoaded) || (this.state.pageState == 'listen' && this.state.audioLoaded)){
       return audioWidget = <AudioWidget pageState={this.state.pageState} audioState={this.state.audioState} soundPosition={this.state.soundPosition}/>;
     }
   }
@@ -171,9 +227,11 @@ export default class App extends React.Component {
     }
   }
 
+
+
   //AUDIO FUNCTIONS!
   recordToggle = async () => {
-    if (this.recording){ //PAUSE ME
+    if (this.recording && this.state.soundPosition > 0){ //PAUSE ME
       if (this.state.audioState == 'playing'){
         await this.recording.pauseAsync();
       }
@@ -184,63 +242,31 @@ export default class App extends React.Component {
         });
       }
     } else { //INITIALIZE AND RECORD
-      this.setState({isLoading: true});
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
-        playsInSilentModeIOS: true,
-        shouldDuckAndroid: true,
-        interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
-        playThroughEarpieceAndroid: true,
-      });
-      if (this.recording !== null) { //if in playback mode?
-        this.recording.setOnRecordingStatusUpdate(null);
-        this.recording = null;
-      }
-      const recording = new Audio.Recording();
-      await recording.prepareToRecordAsync(this.recordingSettings);
-      this.recording = recording;
       await this.recording.startAsync(); // Will call this._updateScreenForRecordingStatus to
-      await recording.setOnRecordingStatusUpdate(this.updateTimer); 
+      await this.recording.setOnRecordingStatusUpdate(this.updateTimer); 
     }
   }
+  audioRestart = async () => {
+    this.setState({isLoading: true});
+    await this.recording.stopAndUnloadAsync();
+    this.initializeRecording();
+    this.setState({isLoading: false});
+  }
+  //soundLoading State
+
   listenToggle = async () => {
-      if (this.soundObject){
         if (this.state.audioState == 'playing'){
-          await this.soundObject.pauseAsync();
-        } else {
+          this.soundObject.pauseAsync();
+        }
+        else if (this.state.audioState == 'complete'){
+          this.soundObject.replayAsync();
+        }
+        else { //audio is initialized on app load
           await this.soundObject.playAsync();
+          await api.logAccessedFile(this.fileAccessed, Constants.installationId)   //log that file was
         }
       }
-      else if (this.state.audioState == 'complete'){
-        this.soundObject.replayAsync();
-      }
-      else {
 
-        this.setState({
-          isLoading: true,
-        });
-        //REQUEST AND PLAY RANDOM FILE
-        // const newSoundURL = await Storage.get('uploaded/FILEKEY') //hardcoded file for testing
-        const unplayedList = await api.getRandomFile(Constants.deviceId);
-        const unplayedListItems  = unplayedList.Items;
-
-        const randIndex = Math.round(Math.random()*(unplayedListItems.length - 1));
-        const randFileKey = unplayedListItems[randIndex].fileId;
-        const randFilePath = 'uploaded/' + randFileKey;
-        const newSoundURL = await Storage.get(randFilePath);
-
-        const soundObject = new Audio.Sound();
-        this.soundObject = soundObject;
-        soundObject.setOnPlaybackStatusUpdate(this.updateTimer);
-        await soundObject.loadAsync({uri: newSoundURL}, this.updateTimer)
-        await soundObject.playAsync();
-
-        //LOG THAT FILE WAS ACCESSED
-        await api.logAccessedFile(randFileKey, Constants.installationId)
-
-      }
-    }
    audioPlayToggle = async () => {
       if (this.state.pageState == 'record'){
         this.recordToggle();
@@ -248,7 +274,7 @@ export default class App extends React.Component {
       else if (this.state.pageState == 'listen'){
         this.listenToggle();
       }
-  }
+    }
   stopAudio = async () => {
     if (this.recording){ //note, no loading spinner. happens in background
       await this.recording.stopAndUnloadAsync();
@@ -285,10 +311,7 @@ export default class App extends React.Component {
     await this.soundObject.pauseAsync();
     this.setState({audioState: 'init'});
   }
-  audioRestart = async () => {
-    await this.recording.stopAndUnloadAsync();
-    this.recording = null;
-  }
+
   updateTimer = status => {
     if (status.error) {
      console.log(`FATAL PLAYER ERROR: ${status.error}`);
@@ -333,7 +356,7 @@ export default class App extends React.Component {
         , soundPosition: null
       });
    }
-  }
+ };
 
 
   render() {
@@ -352,6 +375,7 @@ export default class App extends React.Component {
                 {this.renderPageShareConfirmation()}
               </View>
               <View style={styles.appFooter}>
+                {this.renderCompLogo()}
                 {this.renderCompAudioWidget()}
               </View>
             </View>

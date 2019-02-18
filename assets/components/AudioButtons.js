@@ -1,9 +1,17 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback } from 'react-native';
+import { Animated, StyleSheet, Text, View, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback } from 'react-native';
 // import { AppText }  from '../assets/components/nested/AppText';
 import { ButtonAudio }  from './nested/ButtonAudio';
 
 class AudioButtons extends React.Component {
+
+  constructor(props){
+    super(props);
+    this.state = {
+      pageOpacity: new Animated.Value(1.0),
+    }
+  }
+
   getPauseButtonText = () => {
     if (this.props.pageState == 'record' && this.props.audioState == 'init'){
       return 'Record';
@@ -44,23 +52,39 @@ class AudioButtons extends React.Component {
         return this.props.navPageHome;
     }
   }
+  getLoadingInd = () => {
+    if (this.props.isLoading == true){
+      Animated.timing(
+        this.state.pageOpacity, {toValue: 0.6, duration: 100}
+      ).start();
+      return {opacity: this.state.pageOpacity};
+    }
+    else {
+      Animated.timing(
+        this.state.pageOpacity, {toValue: 1.0, duration: 100}
+      ).start();
+      return {opacity: this.state.pageOpacity};
+    }
+  }
 
   render(){
     return (
       <View>
-        <ButtonAudio onTouch={this.props.audioPlayToggle} buttonStyle={this.getPauseButtonText()} audioState={this.props.audioState}>
-          {this.getPauseButtonText()}
-        </ButtonAudio>
-        <ButtonAudio onTouch={this.getShareButtonFunction()} buttonStyle={this.getShareButtonText()} audioState={this.props.audioState}>
-          {this.getShareButtonText()}
-        </ButtonAudio>
-        <ButtonAudio onTouch={this.getRestartButtonFunction()} buttonStyle={this.getRestartButtonText()} audioState={this.props.audioState}>
-          {this.getRestartButtonText()}
-        </ButtonAudio>
+        <Animated.View style={this.getLoadingInd()}>
+          <ButtonAudio onTouch={this.props.audioPlayToggle} buttonStyle={this.getPauseButtonText()} audioState={this.props.audioState}>
+            {this.getPauseButtonText()}
+          </ButtonAudio>
+          <ButtonAudio onTouch={this.getShareButtonFunction()} buttonStyle={this.getShareButtonText()} audioState={this.props.audioState}>
+            {this.getShareButtonText()}
+          </ButtonAudio>
+          <ButtonAudio onTouch={this.getRestartButtonFunction()} buttonStyle={this.getRestartButtonText()} audioState={this.props.audioState}>
+            {this.getRestartButtonText()}
+          </ButtonAudio>
+        </Animated.View>
       </View>
-
     )
   }
 }
+
 
 export default AudioButtons;

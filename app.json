@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "blackprj",
-    "slug": "blackprj",
+    "name": "blackbox-v1",
+    "slug": "blackbox-v1",
     "privacy": "public",
     "sdkVersion": "31.0.0",
     "platforms": [
@@ -24,6 +24,8 @@
     ],
     "ios": {
       "supportsTablet": true
-    }
+    },
+    "description": "",
+    "githubUrl": "https://github.com/omar-nema/blackbox-native"
   }
 }
